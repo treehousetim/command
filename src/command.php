@@ -10,6 +10,7 @@ class command
 	protected $pipeCommand = null;
 	protected $output = '';
 	protected $outputFile = '';
+	protected $outputAppendFile = false;
 
 	public static function factory() : command
 	{
@@ -66,6 +67,14 @@ class command
 		return $this->output( '2>&1' );
 	}
 	//------------------------------------------------------------------------
+	public function outputAppendFile( string $filename ) : self
+	{
+		$this->outputFile( $filename );
+		$this->outputAppendFile = true;
+
+		return $this;
+	}
+	//------------------------------------------------------------------------
 	public function outputFile( string $filename ) : self
 	{
 		if( $this->pipeCommand )
@@ -105,7 +114,13 @@ class command
 
 		if( $this->outputFile )
 		{
-			$out .= ' > ' . $this->outputFile;
+			$redirection = ' > ';
+			if( $this->outputAppendFile )
+			{
+				$redirection = ' >> ';
+			}
+
+			$out .= $redirection . $this->outputFile;
 		}
 
 		if( $this->pipeCommand )
