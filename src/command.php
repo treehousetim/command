@@ -11,10 +11,19 @@ class command
 	protected $output = '';
 	protected $outputFile = '';
 	protected $outputAppendFile = false;
+	protected $logger = null;
+	protected $dryRun = false;
+	public $execResults = [];
+	protected $commandLog = [];
 
-	public static function factory() : command
+	public function __construct( \Psr\Log\LoggerInterface $logger = null )
 	{
-		return new command();
+		$this->logger = $logger;
+	}
+	//------------------------------------------------------------------------
+	public static function factory( \Psr\Log\LoggerInterface $logger = null ) : command
+	{
+		return new command( $logger );
 	}
 	//------------------------------------------------------------------------
 	public function command( string $command ) : self
@@ -75,6 +84,14 @@ class command
 		return $this;
 	}
 	//------------------------------------------------------------------------
+	public function outputOverwriteFile( string $filename ) : self
+	{
+		$this->outputFile( $filename );
+		$this->outputAppendFile = false;
+
+		return $this;
+	}
+	//------------------------------------------------------------------------
 	public function outputFile( string $filename ) : self
 	{
 		if( $this->pipeCommand )
@@ -85,6 +102,11 @@ class command
 		$this->outputFile = $filename;
 
 		return $this;
+	}
+	//------------------------------------------------------------------------
+	public function getOutputFile() : string
+	{
+		return $this->outputFile;
 	}
 	//------------------------------------------------------------------------
 	public function getExecutableString() : string
@@ -129,5 +151,56 @@ class command
 		}
 
 		return rtrim( $out );
+	}
+	//------------------------------------------------------------------------
+	public function logger( \Psr\Log\LoggerInterface $logger ) : self
+	{
+		$this->logger = $logger;
+
+		return $this;
+	}
+	//------------------------------------------------------------------------
+	public function dryRun( bool $value ) : self
+	{
+		$this->dryRun = $value;
+
+		return $this;
+	}
+	//------------------------------------------------------------------------
+	public function exec( $logPrefix = '' ) : string
+	{
+		$command = $this->getExecutableString();
+
+		$execResult = [];
+
+		if( $this->dryRun )
+		{
+			// return statuses are zero to indicate success
+			$this->returnStatus = 0;
+			$execResult[] = 'Dry Run. Not executed.';
+		}
+		else
+		{
+			exec( $command, $execResult, $this->returnStatus );
+		}
+
+		$retVal = implode( PHP_EOL, $execResult );
+
+		$log = ['content' => $retVal, 'status' => $this->returnStatus, 'command' => $command];
+
+		$this->execResults[] = $log;
+		$this->commandLog[] = $command;
+
+		if( $this->logger )
+		{
+			$this->logger->debug(
+				PHP_EOL . 'Command: ' . $command . PHP_EOL .
+				'Return Code: ' . $this->returnStatus . PHP_EOL .
+				'Content: ' . PHP_EOL . $retVal . PHP_EOL . PHP_EOL .
+				'------------------------------------------------------------------------' . PHP_EOL
+			);
+		}
+
+		return $retVal;
 	}
 }

@@ -11,14 +11,19 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": "^7.0"
+        "php": "^7.0",
+        "psr/log": "^1.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6"
+        "phpunit/phpunit": "^6",
+        "monolog/monolog": "^1.0"
     },
     "autoload": {
         "psr-4": {
             "treehousetim\\command\\": "src/"
         }
+    },
+    "suggest": {
+        "monolog/monolog": "PSR compatible logger for logging your command executions",
     }
 }
