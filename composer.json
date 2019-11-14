@@ -24,6 +24,6 @@
         }
     },
     "suggest": {
-        "monolog/monolog": "PSR compatible logger for logging your command executions",
+        "monolog/monolog": "PSR compatible logger for logging your command executions"
     }
 }
