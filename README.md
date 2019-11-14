@@ -1,6 +1,8 @@
 # treehousetim/command
 simple, dependency-free, uncomplicated shell scripting command class
 
+[TOC]
+
 ## Installing
 
 `composer require treehousetim/command`
@@ -41,7 +43,7 @@ echo \treehousetim\command\command::factory()
 // output:
 // ls '-lah' | more
 
-?>
+
 ```
 
 ## Advanced Usage
@@ -102,14 +104,68 @@ echo command::factory()
 // output
 // ssh 'user@example.com' "/usr/bin/mysqldump '--login-path=mylogin' '--skip-add-drop-table' '--no-create-info' 'my_database' 'table1,table2' '--where=id > 1200' 2>&1" 2>&1 >> /path/to/file.sql
 
+```
 
+## Executing your command
+Simply call `$command->exec();` to execute your command.
+
+Each time `->exec();` is called, an entry in the `$command->execResults` array is created.
+
+### $command->execResults array
+
+The format of `$command->execResults[]` is as follows:
+
+```
+[
+	'content' => $content,
+	'status' => $returnStatus,
+	'command' => $command
+];
+```
+
+If all you want is a list of commands that have been executed, without the other array entries you may use `$command->commandLog[]`.
+
+### Command log
+
+```
+echo $command->commandLog[0];
+```
+
+
+The output from your command is returned from the `exec()` method.
+
+
+## Logging
+Command executions may be logged.  To set up logging, pass any `\Psr\Log\LoggerInterface` object to the constructor or the factory method on `\treehousetim\command\command` to log executions.
+
+### Example using Monolog:
+
+```
+<?php
+
+use \treehousetim\command\command;
+
+$log = new \Monolog\Logger( 'My Example Program' );
+$log->pushHandler( new StreamHandler( './example.log', \Monolog\Logger::DEBUG ) );
+
+$command = command::factory( $log )
+	->command( 'ls' )
+	->arg( '-lah' )
+	->exec();
+
+$output = $command->exec();
+
+echo $command->commandLog[0];
+echo PHP_EOL;
+echo $output
 
 ?>
 ```
 
-## Testing
+## Testing the codebase
 If you have cloned this repo, you can run the tests.
-There are no dependencies, but PHPUnit is installed with composer.
+
+Run composer install to install PHPUnit and Monolog.
 
 1. `composer install`
 2. `./vendor/bin/phpunit test`

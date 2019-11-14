@@ -14,7 +14,7 @@ class command
 	protected $logger = null;
 	protected $dryRun = false;
 	public $execResults = [];
-	protected $commandLog = [];
+	public $commandLog = [];
 
 	public function __construct( \Psr\Log\LoggerInterface $logger = null )
 	{
@@ -167,7 +167,7 @@ class command
 		return $this;
 	}
 	//------------------------------------------------------------------------
-	public function exec( $logPrefix = '' ) : string
+	public function exec() : string
 	{
 		$command = $this->getExecutableString();
 
