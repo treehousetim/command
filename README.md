@@ -1,5 +1,7 @@
 # treehousetim/command
-simple, dependency-free, uncomplicated shell scripting command class
+simple, dependency-free, uncomplicated shell scripting command class 
+
+[![Build Status](https://api.travis-ci.org/treehousetim/command.svg)](https://travis-ci.org/treehousetim/command)
 
 [TOC]
 
